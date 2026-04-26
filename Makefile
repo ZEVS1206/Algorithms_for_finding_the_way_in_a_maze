@@ -2,8 +2,11 @@ BUILD_DIR = build
 EXECUTABLE = start
 CMAKE_GENERATOR = "Unix Makefiles"
 BUILD_TYPE = Release
+SOURCE = source
 
-.PHONY: all clean rebuild run
+file ?=
+
+.PHONY: all clean rebuild run generate visualize_one visualize_all get_statistics test_all
 
 all: $(BUILD_DIR)/Makefile
 	@$(MAKE) -C $(BUILD_DIR) --no-print-directory
@@ -20,4 +23,14 @@ clean:
 rebuild: clean all
 
 run: all
-	@./$(BUILD_DIR)/$(EXECUTABLE)
+	@./$(BUILD_DIR)/$(EXECUTABLE) $(file)
+generate:
+	python3 $(SOURCE)/generate_mazes.py
+visualize_one:
+	python3 $(SOURCE)/visualize_one_maze.py
+visualize_all:
+	python3 $(SOURCE)/visualize_all.py
+get_statistics:
+	python3 $(SOURCE)/get_statistics.py
+test_all:
+	python3 $(SOURCE)/main_run.py

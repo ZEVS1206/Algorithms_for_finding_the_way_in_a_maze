@@ -60,6 +60,9 @@ static bool is_on_goal_line(int x, int y, int dx, int dy, const Coord_type &goal
     return false;
 }
 
+//Forward declaration for recursive perpendicular checks
+static Coord_type get_jump_point(const std::vector<std::vector<int>> &maze, int x, int y, int dx, int dy, const Coord_type &goal_point);
+
 //Check and iterative get jump points
 static Coord_type get_jump_point(const std::vector<std::vector<int>> &maze, int x, int y, int dx, int dy, const Coord_type &goal_point)
 {
@@ -86,6 +89,18 @@ static Coord_type get_jump_point(const std::vector<std::vector<int>> &maze, int 
         if (is_on_goal_line(new_x, new_y, dx, dy, goal_point))
         {
             return {new_x, new_y};
+        }
+        //Check perpendicular directions — if a perpendicular jump exists, current cell is a jump point.
+        //Without this, JPS-4 misses turns in open areas with no walls nearby.
+        if (dx != 0) //moving vertically — check horizontal
+        {
+            if (get_jump_point(maze, new_x, new_y, 0,  1, goal_point).first != -1) return {new_x, new_y};
+            if (get_jump_point(maze, new_x, new_y, 0, -1, goal_point).first != -1) return {new_x, new_y};
+        }
+        if (dy != 0) //moving horizontally — check vertical
+        {
+            if (get_jump_point(maze, new_x, new_y,  1, 0, goal_point).first != -1) return {new_x, new_y};
+            if (get_jump_point(maze, new_x, new_y, -1, 0, goal_point).first != -1) return {new_x, new_y};
         }
         x = new_x;
         y = new_y;
@@ -130,16 +145,33 @@ Result jps4_work_process(const std::vector<std::vector<int>> maze, const Coord_t
 
         if (current_node.position == goal_point)
         {
-            //Recover path
-            std::vector <Coord_type> path;
+            //Recover full path — expand each jump between consecutive jump points
+            std::vector<Coord_type> jump_points;
             Coord_type current = goal_point;
             while (current != start_point)
             {
-                path.push_back(current);
+                jump_points.push_back(current);
                 current = parent[current];
             }
-            path.push_back(start_point);
-            std::reverse(path.begin(), path.end());
+            jump_points.push_back(start_point);
+            std::reverse(jump_points.begin(), jump_points.end());
+
+            std::vector<Coord_type> path;
+            for (int i = 0; i + 1 < (int)jump_points.size(); i++)
+            {
+                Coord_type from = jump_points[i];
+                Coord_type to   = jump_points[i + 1];
+                int step_x = (to.first  == from.first)  ? 0 : (to.first  > from.first  ? 1 : -1);
+                int step_y = (to.second == from.second)  ? 0 : (to.second > from.second ? 1 : -1);
+                Coord_type cur = from;
+                while (cur != to)
+                {
+                    path.push_back(cur);
+                    cur.first  += step_x;
+                    cur.second += step_y;
+                }
+            }
+            path.push_back(goal_point);
 
             auto end_time = std::chrono::high_resolution_clock::now();
             double total_time = std::chrono::duration<double, std::milli>(end_time - start_time).count();
