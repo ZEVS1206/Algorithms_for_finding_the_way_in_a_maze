@@ -2,7 +2,7 @@ BUILD_DIR = build
 EXECUTABLE = start
 CMAKE_GENERATOR = "Unix Makefiles"
 BUILD_TYPE = Release
-SOURCE = source
+SCRIPTS = scripts
 
 file ?=
 
@@ -25,12 +25,12 @@ rebuild: clean all
 run: all
 	@./$(BUILD_DIR)/$(EXECUTABLE) $(file)
 generate:
-	python3 $(SOURCE)/generate_mazes.py
+	python3 $(SCRIPTS)/generate_mazes.py
 visualize_one:
-	python3 $(SOURCE)/visualize_one_maze.py
+	python3 $(SCRIPTS)/visualize_one_maze.py
 visualize_all:
-	python3 $(SOURCE)/visualize_all.py
+	python3 $(SCRIPTS)/visualize_all.py
 get_statistics:
-	python3 $(SOURCE)/get_statistics.py
+	python3 $(SCRIPTS)/get_statistics.py
 test_all:
-	python3 $(SOURCE)/main_run.py
+	python3 $(SCRIPTS)/main_run.py

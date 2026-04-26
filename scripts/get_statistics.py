@@ -50,7 +50,7 @@ def collect_stats(results_dir: str) -> pd.DataFrame:
     df = df.sort_values("seed").reset_index(drop=True)
     return df
 
-def plot_benchmark(df: pd.DataFrame, output_prefix: str = "benchmark"):
+def plot_benchmark(df: pd.DataFrame, output_prefix: str = "benchmarks/benchmark"):
     if df.empty:
         print("Нет данных для построения графиков.")
         return
