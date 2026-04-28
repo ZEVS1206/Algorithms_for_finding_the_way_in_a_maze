@@ -109,7 +109,7 @@ static Coord_type get_jump_point(const std::vector<std::vector<int>> &maze, int 
 
 //Main function of algorithm
 
-Result jps4_work_process(const std::vector<std::vector<int>> maze, const Coord_type &start_point, const Coord_type &goal_point)
+Result jps4_work_process(const std::vector<std::vector<int>>& maze, const Coord_type &start_point, const Coord_type &goal_point)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
 

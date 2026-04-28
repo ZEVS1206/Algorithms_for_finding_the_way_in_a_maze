@@ -5,6 +5,8 @@
 #include <filesystem>
 
 #include "jps4_implementation.h"
+#include "a_star_implementation.h"
+#include "dijkstra_implementation.h"
 
 using json = nlohmann::json;
 
@@ -45,24 +47,45 @@ int main(int argc, char *argv[])
     std::vector<std::vector<int>> grid = data["maze"].get<std::vector<std::vector<int>>>();
     Coord_type start                   = {data["start"][0], data["start"][1]};
     Coord_type goal                    = {data["goal"][0], data["goal"][1]};
-    auto res = jps4_work_process(grid, start, goal);
+    auto res_jps4 = jps4_work_process(grid, start, goal);
     std::cout << "Analyzed file: " << input_file << "\n";
-    std::cout << "Visited nodes: " << res.count_of_visited_nodes << "\n";
-    std::cout << "Time: " << res.total_time << " ms\n";
-    std::cout << "Path length: " << res.path.size() << "\n";
-    for (auto &coords: res.path)
-    {
-        std::cout << "[" << coords.first << "," << coords.second << "] ->";
-    }
-    std::cout << "end\n";
+    std::cout << "Result JPS4\n";
+    std::cout << "Visited nodes: " << res_jps4.count_of_visited_nodes << "\n";
+    std::cout << "Time: " << res_jps4.total_time << " ms\n";
+    std::cout << "Path length: " << res_jps4.path.size() << "\n";
+    // for (auto &coords: res_jps4.path)
+    // {
+    //     std::cout << "[" << coords.first << "," << coords.second << "] ->";
+    // }
+    // std::cout << "end\n\n";
+    auto res_astar = astar_work_process(grid, start, goal);
+    std::cout << "Result A*\n";
+    std::cout << "Visited nodes: " << res_astar.count_of_visited_nodes << "\n";
+    std::cout << "Time: " << res_astar.total_time << " ms\n";
+    std::cout << "Path length: " << res_astar.path.size() << "\n";
+    // for (auto &coords: res_astar.path)
+    // {
+    //     std::cout << "[" << coords.first << "," << coords.second << "] ->";
+    // }
+    // std::cout << "end\n\n";
+    auto res_dijkstra = dijkstra_work_process(grid, start, goal);
+    std::cout << "Result Dijkstra\n";
+    std::cout << "Visited nodes: " << res_dijkstra.count_of_visited_nodes << "\n";
+    std::cout << "Time: " << res_dijkstra.total_time << " ms\n";
+    std::cout << "Path length: " << res_dijkstra.path.size() << "\n";
+    // for (auto &coords: res_dijkstra.path)
+    // {
+    //     std::cout << "[" << coords.first << "," << coords.second << "] ->";
+    // }
+    // std::cout << "end\n\n";
     json result;
     result["maze"]          = grid;
     result["start"]         = start;
     result["goal"]          = goal;
-    result["path"]          = res.path;
-    result["path_len"]      = res.path.size();
-    result["visited nodes"] = res.count_of_visited_nodes;
-    result["time"]          = res.total_time;
+    result["path"]          = res_jps4.path;
+    result["path_len"]      = res_jps4.path.size();
+    result["visited nodes"] = res_jps4.count_of_visited_nodes;
+    result["time"]          = res_jps4.total_time;
     std::filesystem::path input_path(input_file);
     std::string base_name   = input_path.stem().string();
     std::string output_file = "test_results/result_" + base_name + ".json";

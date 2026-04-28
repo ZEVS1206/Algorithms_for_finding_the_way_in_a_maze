@@ -33,7 +33,7 @@ struct Result
 };
 
 //Main algorithm function
-Result jps4_work_process(const std::vector<std::vector<int>> maze, const Coord_type &start_point, const Coord_type &goal_point);
+Result jps4_work_process(const std::vector<std::vector<int>> &maze, const Coord_type &start_point, const Coord_type &goal_point);
 
 
 #endif
