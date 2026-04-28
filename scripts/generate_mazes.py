@@ -47,11 +47,12 @@ def add_rooms(maze, num_rooms=10, min_size=5, max_size=15):
                 maze[y][x] = 0
     return maze
 
-def generate_and_save(num_mazes, width, height, output_dir="mazes", seed_offset=0):
+def generate_and_save(num_mazes, width, height, output_dir="mazes", seed_offset=0, is_any_rooms = 'n'):
     os.makedirs(output_dir, exist_ok=True)
     for i in range(num_mazes):
         maze = generate_maze(width, height, seed=seed_offset + i)
-        maze = add_rooms(maze, num_rooms=20, min_size=5, max_size=21)
+        if (is_any_rooms == 'y'):
+            maze = add_rooms(maze, num_rooms=20, min_size=5, max_size=21)
         filename = os.path.join(output_dir, f"maze_{i:03d}.json")
         with open(filename, "w") as f:
             json.dump({
@@ -62,11 +63,13 @@ def generate_and_save(num_mazes, width, height, output_dir="mazes", seed_offset=
         print(f"Сохранён {filename}")
 def main_generate(output_folder):
     number_of_mazes = int(input("Введите количество лабиринтов для генерации:"))
+    is_any_rooms    = input("Создать лабиринт с комнатами?(y/n):")
     maze_width      = int(input("Ширина(должна быть нечетной):"))
     maze_height     = int(input("Высота(должна быть нечетной):"))
     output_dir = Path(output_folder)
     output_dir.mkdir(exist_ok=True)
-    generate_and_save(number_of_mazes, maze_width, maze_height, output_folder)
+    generate_and_save(number_of_mazes, maze_width, maze_height, output_folder, seed_offset=0, is_any_rooms = is_any_rooms)
+    return is_any_rooms
 
 if __name__ == "__main__":
     output_folder   = input("Папка с тестами:")

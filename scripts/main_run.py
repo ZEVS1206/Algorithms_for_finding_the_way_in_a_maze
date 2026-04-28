@@ -18,7 +18,7 @@ def run_jps4_implementation(file_with_maze):
 def main():
     output_folder   = input("Введите директорию для тестов:")
     is_visual_required = input("Производить ли визуализацию?(y/n):")
-    main_generate(output_folder)
+    is_any_rooms = main_generate(output_folder)
     if (is_visual_required == 'y'):
         visualize_all(output_folder)
     mazes_dir = Path(output_folder)
@@ -34,7 +34,10 @@ def main():
     results_dir = "test_results"
     if (is_visual_required == 'y'):
         visualize_all(results_dir)
-    main_statistics(results_dir)
+    statistics_dir = "benchmarks_without_rooms"
+    if (is_any_rooms == 'y'):
+        statistics_dir = "benchmarks_with_rooms"
+    main_statistics(results_dir, statistics_dir)
 
 if __name__ == "__main__":
     main()

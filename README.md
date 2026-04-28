@@ -8,6 +8,7 @@ The JPS4 algorithm was chosen as the algorithm for implementation. It is an adap
 
 The repository includes:
 - A fast C++ implementation of JPS4.
+- A* and Dijkstra implementation and comparison testing
 - Python scripts for maze generation, batch testing, visualisation, and benchmark statistics.
 
 ---
@@ -41,9 +42,13 @@ For a deeper explanation see the original paper by [Harabor & Grastien (AAAI 201
 ```
 .
 ├── source/
+|   ├── a_star_implementation.cpp
+|   ├── dijkstra_implementation.cpp
 │   ├── jps4_implementation.cpp
 │   └── main_test.cpp
 ├── include/
+|   ├── a_star_implementation.h
+|   ├── dijkstra_implementation.h
 |   └── jps4_implementation.h
 ├── mazes/                  # generated maze JSON files
 ├── test_results/           # json results with png
@@ -53,7 +58,8 @@ For a deeper explanation see the original paper by [Harabor & Grastien (AAAI 201
 |   ├── main_run.py       #main script for all process
 |   ├── visualize_one_maze.py #visualization of one maze
 |   └── visualize_all.py      #visualization of all mazes
-├── benchmarks/    #folder with benchmarks
+├── benchmarks_with_rooms/    #folder with benchmarks
+├── benchmarks_without_rooms/ #also benchmarks
 ├── CMakeLists.txt
 ├── Makefile
 └── README.md
@@ -117,6 +123,8 @@ If you want just test all stages:
 ```bash
 make test_all
 ```
+JPS4 showed better effecienty on tests **with rooms**
+
 
 ---
 
@@ -130,13 +138,16 @@ make test_all
 
 Because JPS4 skips many intermediate cells, `visited nodes` can actually be **smaller** than `path length` in open corridors. In complex mazes it is usually larger, but still far smaller than for vanilla A*.
 
+### About rooms
+The testing program provides for the possibility of generating two types of mazes. With and without rooms. Since the main strength of JPS4 is in more open spaces, its effectiveness is much higher in labyrinths with rooms.
+
 ---
 
 ## Limitations
 
 - The current implementation supports **only 4 directions** (orthogonal movement). Diagonal moves are not allowed – use classic JPS8 if you need them.
 - The forced‑neighbour rules are optimised for uniform‑cost grids with cell weights equal to 1.
-- Very large grids (> 500×500) may cause deep recursion in the `jump` function.
+- Very large grids (> 500×500) caused to deep recursion in the `jump` function, so I adapted recursion to iterative cycle.
 
 ---
 
@@ -157,6 +168,12 @@ Maze: 31x31
 ## Examples of benchmark
 Distribution by metrics:
 ![benchmark distribution](images/benchmark_distribution.png)
+
+### Comparison between algorithms with rooms
+![benchmark comparison with rooms](images/benchmark_cmp_with_rooms.png)
+
+### Comparison between algorithms without rooms
+![benchmark comparison without rooms](images/benchmark_cmp_without_rooms.png)
 
 ---
 
