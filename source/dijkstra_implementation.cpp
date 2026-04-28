@@ -81,6 +81,9 @@ Result dijkstra_work_process(const std::vector<std::vector<int>>& maze, const Co
         return {{}, total_visited_nodes, total_time};
     }
 
+    auto end_time = std::chrono::high_resolution_clock::now();
+    double total_time = std::chrono::duration<double, std::milli>(end_time - start_time).count();
+
     std::vector<Coord_type> path;
     Coord_type current = goal_point;
     while (current != start_point)
@@ -91,8 +94,6 @@ Result dijkstra_work_process(const std::vector<std::vector<int>>& maze, const Co
     path.push_back(start_point);
     std::reverse(path.begin(), path.end());
 
-    auto end_time = std::chrono::high_resolution_clock::now();
-    double total_time = std::chrono::duration<double, std::milli>(end_time - start_time).count();
 
     return {path, total_visited_nodes, total_time};
 }

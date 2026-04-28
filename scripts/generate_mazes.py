@@ -34,10 +34,24 @@ def generate_maze(width, height, seed: int = None) -> List[List[int]]:
     maze[height-2][width-2] = 0
     return maze
 
+def add_rooms(maze, num_rooms=10, min_size=5, max_size=15):
+    height = len(maze)
+    width = len(maze[0])
+    for _ in range(num_rooms):
+        rw = random.randrange(min_size, max_size, 2)
+        rh = random.randrange(min_size, max_size, 2)
+        rx = random.randrange(1, width  - rw - 1)
+        ry = random.randrange(1, height - rh - 1)
+        for y in range(ry, ry + rh):
+            for x in range(rx, rx + rw):
+                maze[y][x] = 0
+    return maze
+
 def generate_and_save(num_mazes, width, height, output_dir="mazes", seed_offset=0):
     os.makedirs(output_dir, exist_ok=True)
     for i in range(num_mazes):
         maze = generate_maze(width, height, seed=seed_offset + i)
+        maze = add_rooms(maze, num_rooms=20, min_size=5, max_size=21)
         filename = os.path.join(output_dir, f"maze_{i:03d}.json")
         with open(filename, "w") as f:
             json.dump({

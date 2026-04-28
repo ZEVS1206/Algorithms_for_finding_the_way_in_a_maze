@@ -17,8 +17,10 @@ def run_jps4_implementation(file_with_maze):
 
 def main():
     output_folder   = input("Введите директорию для тестов:")
+    is_visual_required = input("Производить ли визуализацию?(y/n):")
     main_generate(output_folder)
-    visualize_all(output_folder)
+    if (is_visual_required == 'y'):
+        visualize_all(output_folder)
     mazes_dir = Path(output_folder)
     maze_files = [f for f in mazes_dir.glob("*.json")]
     if not maze_files:
@@ -30,7 +32,8 @@ def main():
         success += 1
     print(f"\nГотово. Успешно обработаны: {success} из {len(maze_files)}")
     results_dir = "test_results"
-    visualize_all(results_dir)
+    if (is_visual_required == 'y'):
+        visualize_all(results_dir)
     main_statistics(results_dir)
 
 if __name__ == "__main__":

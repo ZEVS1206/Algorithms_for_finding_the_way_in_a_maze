@@ -1,0 +1,6 @@
+,time_ms,time_ms,time_ms,visited_nodes,visited_nodes,visited_nodes
+,mean,median,std,mean,median,std
+algorithm,,,,,,
+A*,21.44,22.76,7.91,93868.05,96606.0,27577.12
+Dijkstra,31.34,32.79,7.49,124391.22,127475.0,19909.91
+jps4,21.22,22.95,9.27,57538.63,61841.0,24010.16

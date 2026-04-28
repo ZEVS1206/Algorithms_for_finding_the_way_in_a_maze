@@ -54,6 +54,9 @@ Result astar_work_process(const std::vector<std::vector<int>>& maze, const Coord
 
         if (current_node.position == goal_point)
         {
+
+            auto end_time = std::chrono::high_resolution_clock::now();
+            double total_time = std::chrono::duration<double, std::milli>(end_time - start_time).count();
             //Recover path
             std::vector<Coord_type> path;
             Coord_type current = goal_point;
@@ -65,8 +68,7 @@ Result astar_work_process(const std::vector<std::vector<int>>& maze, const Coord
             path.push_back(start_point);
             std::reverse(path.begin(), path.end());
 
-            auto end_time = std::chrono::high_resolution_clock::now();
-            double total_time = std::chrono::duration<double, std::milli>(end_time - start_time).count();
+
 
             return {path, total_visited_nodes, total_time};
         }

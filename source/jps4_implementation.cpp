@@ -4,66 +4,68 @@
 #include <queue>
 #include <algorithm>
 #include <chrono>
-
 #include "jps4_implementation.h"
 
-
-//Heuristic for algorithm A* (Manhattan distance)
 static int heuristic(const Coord_type &first, const Coord_type &second)
 {
     return abs(first.first - second.first) + abs(first.second - second.second);
 }
-//Can we go to the cell
 static bool is_walkable(const std::vector<std::vector<int>>& maze, int x, int y)
 {
     return x >= 0 && x < (int)maze.size() &&
            y >= 0 && y < (int)maze[0].size() &&
            maze[x][y] == 0;
 }
-//Check if significant cell has "forced" neighbor, direction -> (dx, dy)
 static bool has_forced_neighbor(const std::vector<std::vector<int>> &maze, int x, int y, int dx, int dy)
 {
-    //on the right or left
     if (dx != 0)
     {
-        if (!is_walkable(maze, x, y - 1) && is_walkable(maze, x + dx, y - 1))
-        {
-            return true;
-        }
-        if (!is_walkable(maze, x, y + 1) && is_walkable(maze, x + dx, y + 1))
-        {
-            return true;
-        }
+        if (!is_walkable(maze, x, y - 1) && is_walkable(maze, x + dx, y - 1)) return true;
+        if (!is_walkable(maze, x, y + 1) && is_walkable(maze, x + dx, y + 1)) return true;
     }
-    //up or down
     if (dx == 0)
     {
-        if (!is_walkable(maze, x - 1, y) && is_walkable(maze, x - 1, y + dy))
+        if (!is_walkable(maze, x - 1, y) && is_walkable(maze, x - 1, y + dy)) return true;
+        if (!is_walkable(maze, x + 1, y) && is_walkable(maze, x + 1, y + dy)) return true;
+    }
+    return false;
+}
+static bool is_on_goal_line(int x, int y, int dx, int dy, const Coord_type &goal_point)
+{
+    if (dx != 0) return x == goal_point.first;
+    if (dy != 0) return y == goal_point.second;
+    return false;
+}
+
+//Scan a perpendicular ray from (x, y) in direction (pdx, pdy) iteratively (no recursion).
+//Returns true if a jump point exists along that ray — avoids stack overflow on large open areas.
+static bool has_perpendicular_jump(const std::vector<std::vector<int>> &maze, int x, int y, int pdx, int pdy, const Coord_type &goal_point)
+{
+    int px = x;
+    int py = y;
+    while (true)
+    {
+        px += pdx;
+        py += pdy;
+        if (!is_walkable(maze, px, py))
+        {
+            return false;
+        }
+        if (px == goal_point.first && py == goal_point.second)
         {
             return true;
         }
-        if (!is_walkable(maze, x + 1, y) && is_walkable(maze, x + 1, y + dy))
+        if (is_on_goal_line(px, py, pdx, pdy, goal_point))
+        {
+            return true;
+        }
+        if (has_forced_neighbor(maze, px, py, pdx, pdy))
         {
             return true;
         }
     }
-    return false;
 }
 
-//If moving horizontally (dx != 0): jump point when aligned with goal's row
-//If moving vertically  (dy != 0): jump point when aligned with goal's column
-//This lets the algorithm "turn" toward the goal even with no walls nearby
-static bool is_on_goal_line(int x, int y, int dx, int dy, const Coord_type &goal_point)
-{
-    if (dx != 0) return x == goal_point.first;  //horizontal — same row as goal
-    if (dy != 0) return y == goal_point.second; //vertical   — same column as goal
-    return false;
-}
-
-//Forward declaration for recursive perpendicular checks
-static Coord_type get_jump_point(const std::vector<std::vector<int>> &maze, int x, int y, int dx, int dy, const Coord_type &goal_point);
-
-//Check and iterative get jump points
 static Coord_type get_jump_point(const std::vector<std::vector<int>> &maze, int x, int y, int dx, int dy, const Coord_type &goal_point)
 {
     while (true)
@@ -90,26 +92,23 @@ static Coord_type get_jump_point(const std::vector<std::vector<int>> &maze, int 
         {
             return {new_x, new_y};
         }
-        //Check perpendicular directions — if a perpendicular jump exists, current cell is a jump point.
-        //Without this, JPS-4 misses turns in open areas with no walls nearby.
+        //Check perpendicular directions iteratively (no recursion — avoids stack overflow on large open areas)
         if (dx != 0) //moving vertically — check horizontal
         {
-            if (get_jump_point(maze, new_x, new_y, 0,  1, goal_point).first != -1) return {new_x, new_y};
-            if (get_jump_point(maze, new_x, new_y, 0, -1, goal_point).first != -1) return {new_x, new_y};
+            if (has_perpendicular_jump(maze, new_x, new_y, 0,  1, goal_point)) return {new_x, new_y};
+            if (has_perpendicular_jump(maze, new_x, new_y, 0, -1, goal_point)) return {new_x, new_y};
         }
         if (dy != 0) //moving horizontally — check vertical
         {
-            if (get_jump_point(maze, new_x, new_y,  1, 0, goal_point).first != -1) return {new_x, new_y};
-            if (get_jump_point(maze, new_x, new_y, -1, 0, goal_point).first != -1) return {new_x, new_y};
+            if (has_perpendicular_jump(maze, new_x, new_y,  1, 0, goal_point)) return {new_x, new_y};
+            if (has_perpendicular_jump(maze, new_x, new_y, -1, 0, goal_point)) return {new_x, new_y};
         }
         x = new_x;
         y = new_y;
     }
 }
 
-//Main function of algorithm
-
-Result jps4_work_process(const std::vector<std::vector<int>>& maze, const Coord_type &start_point, const Coord_type &goal_point)
+Result jps4_work_process(const std::vector<std::vector<int>> &maze, const Coord_type &start_point, const Coord_type &goal_point)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -117,11 +116,8 @@ Result jps4_work_process(const std::vector<std::vector<int>>& maze, const Coord_
     {
         return {{}, 0, 0.0};
     }
-    //dictionary of best costs from start to points
     std::unordered_map<Coord_type, int, Pair_hash> cost_from_start_score;
-    //dictionary of parents of points
     std::unordered_map<Coord_type, Coord_type, Pair_hash> parent;
-    //priority queue for A*, prioritize by minimum total_cost
     std::priority_queue<Node, std::vector<Node>, std::greater<Node>> open_set;
 
     cost_from_start_score[start_point] = 0;
@@ -134,7 +130,6 @@ Result jps4_work_process(const std::vector<std::vector<int>>& maze, const Coord_
         Node current_node = open_set.top();
         open_set.pop();
 
-        //Skip stale entries — a better path to this node was already found
         auto it = cost_from_start_score.find(current_node.position);
         if (it != cost_from_start_score.end() && current_node.cost_from_start > it->second)
         {
@@ -179,7 +174,7 @@ Result jps4_work_process(const std::vector<std::vector<int>>& maze, const Coord_
             return {path, total_visited_nodes, total_time};
         }
 
-        const int directions[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};//Directions for movement
+        const int directions[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
         for (auto &offset: directions)
         {
             Coord_type jump_point = get_jump_point(maze, current_node.position.first, current_node.position.second, offset[0], offset[1], goal_point);
@@ -205,6 +200,5 @@ Result jps4_work_process(const std::vector<std::vector<int>>& maze, const Coord_
 
     auto end_time = std::chrono::high_resolution_clock::now();
     double total_time = std::chrono::duration<double, std::milli>(end_time - start_time).count();
-    //If algorithm has not found path
     return {{}, total_visited_nodes, total_time};
 }
