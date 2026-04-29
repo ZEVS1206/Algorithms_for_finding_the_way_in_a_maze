@@ -66,6 +66,14 @@ For a deeper explanation see the original paper by [Harabor & Grastien (AAAI 201
 ```
 
 ---
+## Technical Specifications  
+- **Compiler**: `g++` (GCC, version 15.2.0)  
+- **IDE**: Microsoft VSCode
+- **OS**: Kali Linux (version 2025.3)  
+- **CPU**: Intel Core i7 13700H (2.4 GHz)  
+
+
+---
 
 ## Build & Run
 
