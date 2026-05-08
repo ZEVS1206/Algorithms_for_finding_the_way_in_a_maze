@@ -189,7 +189,7 @@ Distribution by metrics:
 
 - [Harabor & Grastien (AAAI 2011)](https://users.cecs.anu.edu.au/~dharabor/data/papers/harabor-grastien-aaai11.pdf). *Online Graph Pruning for Pathfinding on Grid Maps*. AAAI.
 - [Habr.com – Jump Point Search (Russian)](https://habr.com/ru/articles/198266/)
-- [JPS4 for 4‑connected grids – community implementation](https://github.com/IsaacPascual/JPS4)
+- [Another Habr arcticle about mazes](https://habr.com/ru/companies/otus/articles/693036/)
 - [Google research (2025)](https://arxiv.org/pdf/2501.14816)
 
 ---
