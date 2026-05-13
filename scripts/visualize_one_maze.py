@@ -53,7 +53,11 @@ def get_maze(file_with_maze = "mazes/test_1.json"):
     maze = data["maze"]
     start = data["start"]
     goal  = data["goal"]
-    path = data.get("path", [])
+    jps4 = data.get("jps4", [])
+    path = []
+    if (jps4):
+        path = data["jps4"].get("path", [])
+
     if path and isinstance(path[0], list):
         path = [tuple(p) for p in path]
     file_dir = Path(file_with_maze)
